@@ -3,28 +3,27 @@ library("ggplot2")
 
 postproc <- read.csv("~/research/seams2020-data/postproc.csv")
 
-postproc <- read.csv("~/research/seams2020-data/postprocmerge.csv")
+postproc <- read.csv("~/research/seams2020-data/postprocmerge3.csv")
 
-s0 <- subset(postproc,postproc$trial == 9)
+#s0 <- subset(postproc,postproc$trial == 5)
 
-data <- s0
+#data <- s0
 
-aggdata <- data[,c("generation","runtime","profit")]
+data <- postproc
 
-aggdata <- aggregate(aggdata,by=list(aggdata$generation,data$transformID), FUN=median,na.rm=TRUE)
+aggdata <- data[,c("runtime","profit")]
+
+aggdata <- aggregate(aggdata,by=list(data$scenarioMutations,data$transformID), FUN=mean,na.rm=TRUE)
 
 aggdata <- aggdata %>%
   group_by(Group.2) %>%
   mutate(cumruntime = cumsum(runtime))
 
-aggdata2 <- aggregate(data$profit, by=list(data$transformID), max)
+aggdata2 <- aggregate(data$profit, by=list(data$transformID,data$scenarioMutations), max)
 
-aggdata2[order(-aggdata2$x),]
+aggdata2srt <-aggdata2[order(aggdata2$Group.2,-aggdata2$x),]
 
-# colorblind color scheme
-cbPalette <- c("#47242B","#5A607C", "#3EAA9A", "#C3E270", "#A18E7B")
+aggdata2srt 
 
-p <- ggplot(data=aggdata, aes(y=profit,x=Group.1,color=Group.2))
-p <- p +  theme_bw() + xlab("Generation") + ylab("Utility") + scale_color_discrete(name="Initial Population") #+ coord_cartesian(xlim=c(0, 20))
-p <- p + theme(text=element_text(size=27), title=element_text(size=30,face="bold"),legend.position=c(.8,.5),legend.title=element_text(size=30,face="bold"),legend.text=element_text(size=25),legend.key.size=unit(1,"in"))
-p + geom_line(lwd=1.5)
+p <- ggplot(aggdata2srt, aes(x=reorder(Group.1,-x), y=x))
+p + geom_bar(stat='identity') + facet_wrap(~Group.2) + theme(axis.text.x = element_text(angle = 45, hjust = 1))
