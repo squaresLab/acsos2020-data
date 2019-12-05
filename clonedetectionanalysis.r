@@ -36,11 +36,11 @@ aggdata <- aggdata %>%
 # utility over cumulative runtime by initial population
 p <- ggplot(data=aggdata, aes(y=profit,x=cumruntime/1000,color=Group.2))
 p <- p +  theme_bw() + xlab("Cumulative Evaluation Time (seconds)") + ylab("Utility") + scale_color_discrete(name="Initial Population") #+ coord_cartesian(xlim=c(0, 20))
-p <- p + theme(text=element_text(size=27), title=element_text(size=30,face="bold"),legend.position=c(.8,.5),legend.title=element_text(size=30,face="bold"),legend.text=element_text(size=25),legend.key.size=unit(1,"in"))
-p + scale_colour_manual(values=cbPalette,name="Starting Plan") + geom_line(lwd=1.5)   + coord_cartesian(xlim=c(0.5,60))
+p <- p + theme(text=element_text(size=18), title=element_text(size=18,face="bold"),legend.title=element_text(size=18,face="bold"),legend.text=element_text(size=16),legend.key.size=unit(0.3,"in"),legend.position=c(.8,.4))
+p + scale_colour_manual(values=cbPalette,name="Initial Population") + geom_line(lwd=2)   + scale_y_continuous(labels = function(x) format(x, scientific = TRUE)) + coord_cartesian(xlim=c(0.5,125))#, ylim=c(27500000,30000000))
 
 # line graph utility over generation by initial population
 p <- ggplot(data=aggdata, aes(y=profit,x=Group.1,color=Group.2))
 p <- p +  theme_bw() + xlab("Generation") + ylab("Utility") + scale_color_discrete(name="Initial Population") #+ coord_cartesian(xlim=c(0, 20))
-p <- p + theme(text=element_text(size=27), title=element_text(size=30,face="bold"),legend.position=c(.8,.5),legend.title=element_text(size=30,face="bold"),legend.text=element_text(size=25),legend.key.size=unit(1,"in"))
-p + scale_colour_manual(values=cbPalette,name="Initial Population") + geom_line(lwd=1.5)
+p <- p + theme(text=element_text(size=18), title=element_text(size=18,face="bold"),legend.title=element_text(size=18,face="bold"),legend.text=element_text(size=16),legend.key.size=unit(0.3,"in"),legend.position=c(.8,.4))
+p + scale_colour_manual(values=cbPalette,name="Initial Population") + geom_line(lwd=2)   + scale_y_continuous(labels = function(x) format(x, scientific = TRUE))# + coord_cartesian(xlim=c(0.5,125))
