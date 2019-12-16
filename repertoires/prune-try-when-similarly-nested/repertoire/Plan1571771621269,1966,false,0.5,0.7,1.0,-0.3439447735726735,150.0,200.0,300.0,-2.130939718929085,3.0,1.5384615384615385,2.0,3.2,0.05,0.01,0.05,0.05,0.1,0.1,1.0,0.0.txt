@@ -1,0 +1,1 @@
+ (; (; (F ERC[i3|] (; (StartServer B) (StartServer C))) (T (StartServer A) (; (DecreaseDimmer A) (DecreaseDimmer A)) (StartServer B))) (F ERC[i2|] (; (F ERC[i3|] (StartServer A)) (T (StartServer C) (StartServer C) (StartServer B)))))

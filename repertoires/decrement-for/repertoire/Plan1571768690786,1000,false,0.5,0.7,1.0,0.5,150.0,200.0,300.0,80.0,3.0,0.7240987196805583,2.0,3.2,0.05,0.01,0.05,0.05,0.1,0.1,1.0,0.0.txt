@@ -1,0 +1,1 @@
+ (F ERC[i2|] (; (; (StartServer B) (; (; (StartServer B) (; (T (DecreaseTraffic A) (StartServer B) (StartServer B)) (StartServer A))) (T (StartServer C) (; (StartServer A) (StartServer C)) (T (DecreaseTraffic A) (IncreaseDimmer A) (StartServer B))))) (StartServer C)))
