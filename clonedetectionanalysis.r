@@ -10,8 +10,49 @@ repertoire15Gen <- read.csv("repertoire15Gen.csv")
 
 data <- repertoire15Gen
 
+scratch <- read.csv("scratch4s.csv")
+baseline <- read.csv("baseline30gen4s")
+deckard <- read.csv("deckard4s.csv")
+deckardcust <- read.csv("deckardcust4s.csv")
+deckardcust$init <- "deckardcustom"
+
+data <- rbind(baseline,deckard)
+data <- rbind(data,deckardcust)
+data <- rbind(data,scratch)
+
+
+scratch <- read.csv("repertoireaws_scratch.csv")
+baseline <- read.csv("repertoireaws_rep.csv")
+deckardcust <- read.csv("repertoireaws_deckard_cust.csv")
+trimmer <- read.csv("awstrimmer.csv")
+
+reruns <- read.csv("aws_reruns_merged.csv")
+
+rerep <- read.csv("aws_9_10_repertoire_rerun.csv")
+
+rijnard <- read.csv("rijnardsawspost.csv")
+rijnard$init <- rijnard$transformID
+
+rijnard <- rijnard[,-c(17)]
+
+data <- rbind(scratch,baseline)
+data <- rbind(data,deckardcust)
+data <- rbind(data,trimmer)
+
+data <- rbind(data,rijnard)
+
+# remove the data from buggy runs for replacement
+data <- subset(data,(data$trial != 2 | data$scenarioMutations != 5))
+data <- subset(data,(data$trial != 5 | data$scenarioMutations != 10))
+data <- subset(data,(data$trial != 9 | data$scenarioMutations != 10))
+               
+data <- rbind(data,reruns)
+data <- rbind(data,rerep)
+
 # colorblind color scheme
 cbPalette <- c("#47242B","#5A607C", "#3EAA9A", "#C3E270", "#A18E7B")
+
+data <- subset(data,data$init %in% c("scratch","trimmer","repertoire"))
 
 datacat <- data
 # convert generation  to a factor to enable box plots
@@ -21,26 +62,48 @@ datacat$generation <- as.factor(datacat$generation)
 #A4 size
 p <- ggplot(data=datacat, aes(x=generation,y=profit,color=init))
 p <- p + ylab("Utility") + xlab("Generation") + scale_fill_discrete(name="Initial Population")  + theme_bw()
-p <- p + theme(text=element_text(size=27), title=element_text(size=30,face="bold"),legend.position=c(.8,.7),legend.title=element_text(size=30,face="bold"),legend.text=element_text(size=25),legend.key.size=unit(0.75,"in"))
-p + scale_color_manual(values=cbPalette,name="Starting Plan") +  geom_boxplot(lwd=2,fatten=0.5,,position=position_dodge(width=.95))  + coord_cartesian(xlim=c(1,29.75)) #+ geom_hline(aes(yintercept = 4938.98986581),lwd=1.25)
+p <- p + theme(text=element_text(size=27), title=element_text(size=30,face="bold"),legend.position=c(.8,.4),legend.title=element_text(size=30,face="bold"),legend.text=element_text(size=25),legend.key.size=unit(0.75,"in"))
+p + scale_color_manual(values=cbPalette,name="Starting Plan") +  geom_line(lwd=2,fatten=0.5,position=position_dodge(width=.95))  + coord_cartesian(xlim=c(1,29.75)) + facet_grid(scenarioMutations~trial) #+ geom_hline(aes(yintercept = 4938.98986581),lwd=1.25)
 
 # take the median by generation and initial population
 aggdata <- data[,c("generation","runtime","profit")]
-aggdata <- aggregate(aggdata,by=list(aggdata$generation,data$init), FUN=median,na.rm=TRUE)
+aggdata <- aggregate(aggdata,by=list(aggdata$generation,data$init,data$trial,data$scenarioMutations), FUN=mean,na.rm=TRUE)
 
 # calculate cumulative runtime
 aggdata <- aggdata %>%
-  group_by(Group.2) %>%
+  group_by(Group.2,Group.3,Group.4) %>%
   mutate(cumruntime = cumsum(runtime))
 
 # utility over cumulative runtime by initial population
 p <- ggplot(data=aggdata, aes(y=profit,x=cumruntime/1000,color=Group.2))
 p <- p +  theme_bw() + xlab("Cumulative Evaluation Time (seconds)") + ylab("Utility") + scale_color_discrete(name="Initial Population") #+ coord_cartesian(xlim=c(0, 20))
-p <- p + theme(text=element_text(size=18), title=element_text(size=18,face="bold"),legend.title=element_text(size=18,face="bold"),legend.text=element_text(size=16),legend.key.size=unit(0.3,"in"),legend.position=c(.8,.4))
-p + scale_colour_manual(values=cbPalette,name="Initial Population") + geom_line(lwd=2)   + scale_y_continuous(labels = function(x) format(x, scientific = TRUE)) + coord_cartesian(xlim=c(0.5,125))#, ylim=c(27500000,30000000))
+p <- p + theme(text=element_text(size=18), title=element_text(size=18,face="bold"),legend.title=element_text(size=18,face="bold"),legend.text=element_text(size=16),legend.key.size=unit(0.3,"in"),legend.position=c(.7,.3))
+p + geom_line(lwd=2)   + scale_y_continuous(labels = function(x) format(x, scientific = TRUE)) + facet_grid(Group.4~Group.3)+ coord_cartesian(xlim=c(1,900)) +scale_colour_manual(values=cbPalette,name="Initial Population")
+#+ coord_cartesian(xlim=c(0.5,125)) 
+
+p <- ggplot(data=aggdata, aes(y=profit,x=cumruntime/1000,color=Group.2))
+p <- p +  theme_bw() + xlab("Cumulative Evaluation Time (seconds)") + ylab("Utility") + scale_color_discrete(name="Initial Population") #+ coord_cartesian(xlim=c(0, 20))
+p <- p + theme(text=element_text(size=18), title=element_text(size=18,face="bold"),legend.title=element_text(size=18,face="bold"),legend.text=element_text(size=16),legend.key.size=unit(0.3,"in"),legend.position=c(.7,.3))
+p + geom_line(lwd=2)   + scale_y_continuous(labels = function(x) format(x, scientific = TRUE)) + facet_grid(Group.4~Group.3)+ coord_cartesian(xlim=c(1,60)) +scale_colour_manual(values=cbPalette,name="Initial Population")#, ylim=c(27500000,30000000)) 
+#scale_colour_manual(values=cbPalette,name="Initial Population")
+
+# colorblind color scheme
+cbPalette <- c("#47242B","#5A607C", "#C3E270", "#3EAA9A", "#A18E7B")
+
+p <- ggplot(data=aggdata, aes(y=profit,x=cumruntime/1000,color=Group.2))
+p <- p +  theme_bw() + xlab("Cumulative Evaluation Time (seconds)") + ylab("Utility") + scale_color_discrete(name="Initial Population") #+ coord_cartesian(xlim=c(0, 20))
+p <- p + theme(text=element_text(size=18), title=element_text(size=18,face="bold"),legend.title=element_text(size=18,face="bold"),legend.text=element_text(size=16),legend.key.size=unit(0.3,"in"),legend.position=c(.7,.3))
+p + geom_line(lwd=2)   + scale_y_continuous(labels = function(x) format(x, scientific = TRUE)) + facet_grid(Group.4~Group.3)+ coord_cartesian(xlim=c(1,60)) +scale_colour_manual(values=cbPalette,name="Initial Population")#, ylim=c(27500000,30000000)) 
+#scale_colour_manual(values=cbPalette,name="Initial Population")
+
+p <- ggplot(data=aggdata, aes(y=profit,x=cumruntime/1000,color=Group.2))
+p <- p +  theme_bw() + xlab("Cumulative Evaluation Time (seconds)") + ylab("Utility") + scale_color_discrete(name="Initial Population") #+ coord_cartesian(xlim=c(0, 20))
+p <- p + theme(text=element_text(size=18), title=element_text(size=18,face="bold"),legend.title=element_text(size=18,face="bold"),legend.text=element_text(size=16),legend.key.size=unit(0.3,"in"),legend.position=c(.7,.3))
+p + geom_line(lwd=2)   + scale_y_continuous(labels = function(x) format(x, scientific = TRUE)) + facet_grid(Group.4~Group.3)+ coord_cartesian(xlim=c(1,60)) 
+#scale_colour_manual(values=cbPalette,name="Initial Population")
 
 # line graph utility over generation by initial population
 p <- ggplot(data=aggdata, aes(y=profit,x=Group.1,color=Group.2))
 p <- p +  theme_bw() + xlab("Generation") + ylab("Utility") + scale_color_discrete(name="Initial Population") #+ coord_cartesian(xlim=c(0, 20))
-p <- p + theme(text=element_text(size=18), title=element_text(size=18,face="bold"),legend.title=element_text(size=18,face="bold"),legend.text=element_text(size=16),legend.key.size=unit(0.3,"in"),legend.position=c(.8,.4))
-p + scale_colour_manual(values=cbPalette,name="Initial Population") + geom_line(lwd=2)   + scale_y_continuous(labels = function(x) format(x, scientific = TRUE))# + coord_cartesian(xlim=c(0.5,125))
+p <- p + theme(text=element_text(size=18), title=element_text(size=18,face="bold"),legend.title=element_text(size=18,face="bold"),legend.text=element_text(size=16),legend.key.size=unit(0.3,"in"),legend.position=c(.8,.35))
+p + scale_colour_manual(values=cbPalette,name="Initial Population") + geom_line(lwd=2)   + scale_y_continuous(labels = function(x) format(x, scientific = TRUE))+ facet_grid(Group.4~Group.3)# + coord_cartesian(xlim=c(0.5,125))
