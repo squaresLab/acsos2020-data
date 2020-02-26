@@ -29,8 +29,14 @@ trimmer <- read.csv("awstrimmer.csv")
 reruns <- read.csv("aws_reruns_merged.csv")
 
 rerep <- read.csv("aws_9_10_repertoire_rerun.csv")
+rerep2 <- read.csv("aws_2_5_repertoire_rerun.csv")
+rerep3 <- read.csv("aws_5_10_repertoire_rerun.csv")
 
 rijnard <- read.csv("rijnardsawspost.csv")
+
+rijnard5910re <- read.csv("rijnards-5-9-10-rerun.csv")
+rijnard25re <- read.csv("rijnards-2-5-rerun.csv")
+
 rijnard$init <- rijnard$transformID
 
 rijnard <- rijnard[,-c(17)]
@@ -48,6 +54,16 @@ data <- subset(data,(data$trial != 9 | data$scenarioMutations != 10))
                
 data <- rbind(data,reruns)
 data <- rbind(data,rerep)
+data <- rbind(data,rerep2)
+data <- rbind(data,rerep3)
+
+# rijnard exp replacements
+rijnardrep <- rbind(rijnard5910re,rijnard25re)
+rijnardrep$init <- rijnardrep$transformID
+
+rijnardrep <- rijnardrep[,-c(17)]
+
+data <- rbind(data,rijnardrep)
 
 # colorblind color scheme
 cbPalette <- c("#47242B","#5A607C", "#3EAA9A", "#C3E270", "#A18E7B")
