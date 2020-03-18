@@ -65,6 +65,9 @@ rijnardrep <- rijnardrep[,-c(17)]
 
 data <- rbind(data,rijnardrep)
 
+# select only the positive results from rijnard results
+data <- subset(data, !(data$init %in% c('prune-try-take-second','prune-sequence-take-first','prune-sequence-take-second','decrement-for','scratch','trimmer')))
+
 # colorblind color scheme
 cbPalette <- c("#47242B","#5A607C", "#3EAA9A", "#C3E270", "#A18E7B")
 
@@ -72,7 +75,7 @@ data <- subset(data,data$init %in% c("scratch","trimmer","repertoire"))
 
 datacat <- data
 # convert generation  to a factor to enable box plots
-datacat$generation <- as.factor(datacat$generation) 
+datacat$generation <- as.factor(datacat$generation)
 
 # boxplot of utility over generation by initial population
 #A4 size
@@ -90,11 +93,15 @@ aggdata <- aggdata %>%
   group_by(Group.2,Group.3,Group.4) %>%
   mutate(cumruntime = cumsum(runtime))
 
+aggdata <- subset(aggdata,aggdata$cumruntime < 20*1000)
+
+cbPalette <- c("#a6dba0","#7b3294","#c2a5cf","#008837")
+
 # utility over cumulative runtime by initial population
 p <- ggplot(data=aggdata, aes(y=profit,x=cumruntime/1000,color=Group.2))
 p <- p +  theme_bw() + xlab("Cumulative Evaluation Time (seconds)") + ylab("Utility") + scale_color_discrete(name="Initial Population") #+ coord_cartesian(xlim=c(0, 20))
 p <- p + theme(text=element_text(size=18), title=element_text(size=18,face="bold"),legend.title=element_text(size=18,face="bold"),legend.text=element_text(size=16),legend.key.size=unit(0.3,"in"),legend.position=c(.7,.3))
-p + geom_line(lwd=2)   + scale_y_continuous(labels = function(x) format(x, scientific = TRUE)) + facet_grid(Group.4~Group.3)+ coord_cartesian(xlim=c(1,900)) +scale_colour_manual(values=cbPalette,name="Initial Population")
+p + geom_line(lwd=2)   + scale_y_continuous(labels = function(x) format(x, scientific = TRUE)) + facet_grid(Group.4~Group.3)+ coord_cartesian(xlim=c(1,60)) +scale_colour_manual(values=cbPalette,name="Initial Population")
 #+ coord_cartesian(xlim=c(0.5,125)) 
 
 p <- ggplot(data=aggdata, aes(y=profit,x=cumruntime/1000,color=Group.2))
@@ -104,7 +111,8 @@ p + geom_line(lwd=2)   + scale_y_continuous(labels = function(x) format(x, scien
 #scale_colour_manual(values=cbPalette,name="Initial Population")
 
 # colorblind color scheme
-cbPalette <- c("#47242B","#5A607C", "#C3E270", "#3EAA9A", "#A18E7B")
+#cbPalette <- c("#47242B","#5A607C", "#C3E270", "#3EAA9A", "#A18E7B")
+cbPalette <- c("#762a83","#af8dc3","#e7d4e8","#d9f0d3","#7fbf7b","#1b7837")
 
 p <- ggplot(data=aggdata, aes(y=profit,x=cumruntime/1000,color=Group.2))
 p <- p +  theme_bw() + xlab("Cumulative Evaluation Time (seconds)") + ylab("Utility") + scale_color_discrete(name="Initial Population") #+ coord_cartesian(xlim=c(0, 20))
@@ -118,8 +126,10 @@ p <- p + theme(text=element_text(size=18), title=element_text(size=18,face="bold
 p + geom_line(lwd=2)   + scale_y_continuous(labels = function(x) format(x, scientific = TRUE)) + facet_grid(Group.4~Group.3)+ coord_cartesian(xlim=c(1,60)) 
 #scale_colour_manual(values=cbPalette,name="Initial Population")
 
+# here are the transforms graphs
+# 18 x 12
 # line graph utility over generation by initial population
-p <- ggplot(data=aggdata, aes(y=profit,x=Group.1,color=Group.2))
-p <- p +  theme_bw() + xlab("Generation") + ylab("Utility") + scale_color_discrete(name="Initial Population") #+ coord_cartesian(xlim=c(0, 20))
-p <- p + theme(text=element_text(size=18), title=element_text(size=18,face="bold"),legend.title=element_text(size=18,face="bold"),legend.text=element_text(size=16),legend.key.size=unit(0.3,"in"),legend.position=c(.8,.35))
-p + scale_colour_manual(values=cbPalette,name="Initial Population") + geom_line(lwd=2)   + scale_y_continuous(labels = function(x) format(x, scientific = TRUE))+ facet_grid(Group.4~Group.3)# + coord_cartesian(xlim=c(0.5,125))
+p <- ggplot(data=aggdata, aes(y=profit,x=cumruntime/1000,color=Group.2))
+p <- p +  theme_bw() + xlab("Cumulative Evaluation Time (seconds)") + ylab("Utility") + scale_color_discrete(name="Initial Population") #+ coord_cartesian(xlim=c(0, 20))
+p <- p + theme(text=element_text(size=18), title=element_text(size=18,face="bold"),legend.title=element_text(size=18,face="bold"),legend.text=element_text(size=16),legend.key.size=unit(0.3,"in"),legend.position=c(.7,.25))
+p + geom_line(lwd=2)   + scale_y_continuous(labels = function(x) format(x, scientific = TRUE)) + facet_grid(Group.4~Group.3)+ coord_cartesian(xlim=c(1,60)) +scale_colour_manual(values=cbPalette,name="Initial Population")

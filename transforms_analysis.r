@@ -54,11 +54,15 @@ data <- postproc
 
 aggdata2 <- aggregate(data$profit, by=list(data$Group.2,data$Group.4,data$Group.3), max)
 
+aggdata3 <- aggregate(aggdata2$x, by=list(aggdata2$Group.1), mean)
 aggdata3 <- aggregate(aggdata2$x, by=list(aggdata2$Group.1,aggdata2$Group.2), mean)
+
 
 aggdata3
 
 aggdata3srt <-aggdata3[order(aggdata3$Group.2,-aggdata3$x),]
+aggdata3srt <-aggdata3[order(-aggdata3$x),]
+
 
 aggdata3srt 
 
